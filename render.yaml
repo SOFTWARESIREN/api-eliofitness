@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: eliofitness-api
+    env: php
+    buildCommand: composer install --no-interaction --prefer-dist --optimize-autoloader && php artisan config:cache && php artisan route:cache
+    startCommand: heroku-php-apache2 public/
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: APP_KEY
+        generateValue: true
+      - key: APP_NAME
+        value: ElioFitness
+      - key: CACHE_DRIVER
+        value: file
+      - key: SESSION_DRIVER
+        value: cookie
+      - key: SESSION_LIFETIME
+        value: 120
+
+databases:
+  - name: eliofitness-db
+    plan: free
+    databaseName: eliofitness
+    user: eliofitness_user
