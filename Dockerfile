@@ -6,23 +6,19 @@ WORKDIR /app
 # Instalar dependencias del sistema
 RUN apk add --no-cache git libpq-dev
 
-# Copiar composer files primero para aprovechar el caché de capas
-COPY composer.json composer.lock* ./
-
-# Limpiar caché de composer y actualizar
-RUN composer clear-cache
-
-# Instalar dependencias de PHP con una estrategia más flexible
-ENV COMPOSER_ALLOW_SUPERUSER=1
-RUN composer update --no-interaction && \
-    composer install --no-interaction --no-scripts --prefer-dist
-
-# Ahora copiar el resto de la aplicación
+# Primero, copiar todo el código de la aplicación
 COPY . /app
 
 # Establecer permisos
 RUN chown -R application:application /app
 RUN chmod -R 755 /app/storage /app/bootstrap/cache
+
+# Limpiar caché de composer
+RUN composer clear-cache
+
+# Instalar dependencias de PHP con --no-scripts para evitar errores
+ENV COMPOSER_ALLOW_SUPERUSER=1
+RUN composer install --no-interaction --no-scripts --prefer-dist
 
 # Configurar Apache
 ENV WEB_DOCUMENT_ROOT=/app/public
