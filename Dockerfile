@@ -20,8 +20,11 @@ COPY . .
 # Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+# Permitir ejecutar Composer como superusuario
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
 # Instalar dependencias
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-scripts
 
 # Configurar permisos
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
