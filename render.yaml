@@ -2,8 +2,8 @@ services:
   - type: web
     name: eliofitness-api
     runtime: php
-    buildCommand: composer install --no-interaction --prefer-dist --optimize-autoloader && php artisan config:cache && php artisan route:cache
-    startCommand: heroku-php-apache2 public/
+    buildCommand: php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && php composer-setup.php && php -r "unlink('composer-setup.php');" && php composer.phar install --no-interaction --prefer-dist --optimize-autoloader && php artisan config:cache && php artisan route:cache
+    startCommand: php artisan serve --host 0.0.0.0 --port $PORT
     envVars:
       - key: APP_ENV
         value: production
