@@ -24,25 +24,12 @@ ENV PHP_UPLOAD_MAX_FILESIZE=64M
 ENV COMPOSER_ALLOW_SUPERUSER=1
 RUN composer install --no-interaction --no-scripts --no-dev --prefer-dist --ignore-platform-reqs
 
-# Generar clave de aplicación si no existe
+# Generar clave manualmente (sin usar artisan)
 RUN if [ ! -f .env ]; then cp .env.example .env; fi
-RUN php artisan key:generate --force
-
-# Optimizar la aplicación
-RUN php artisan optimize
-
-# Crear script de inicio
-RUN echo '#!/bin/sh\n\
-echo "Ejecutando migraciones..."\n\
-php artisan migrate --force\n\
-echo "Migraciones completadas."\n\
-supervisord\n\
-' > /app/start.sh
-
-RUN chmod +x /app/start.sh
+RUN echo "APP_KEY=base64:$(openssl rand -base64 32)" >> .env
 
 # Exponer puerto
 EXPOSE 80
 
 # Comando de inicio
-CMD ["/app/start.sh"]
+CMD ["supervisord"]
