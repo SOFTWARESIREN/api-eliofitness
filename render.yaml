@@ -1,7 +1,7 @@
 services:
   - type: web
     name: eliofitness-api
-    env: php
+    runtime: php
     buildCommand: composer install --no-interaction --prefer-dist --optimize-autoloader && php artisan config:cache && php artisan route:cache
     startCommand: heroku-php-apache2 public/
     envVars:
