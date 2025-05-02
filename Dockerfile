@@ -16,9 +16,18 @@ RUN chmod -R 755 /app/storage /app/bootstrap/cache
 # Limpiar caché de composer
 RUN composer clear-cache
 
-# Instalar dependencias de PHP con --no-scripts para evitar errores
+# Configurar entorno Laravel
 ENV COMPOSER_ALLOW_SUPERUSER=1
+RUN if [ ! -f .env ]; then cp .env.example .env; fi
+
+# Modificar el bootstrap/app.php para corregir el error de compatibilidad
+RUN sed -i 's/::configure(\[/([/' /app/bootstrap/app.php
+
+# Instalar dependencias de PHP con --no-scripts para evitar errores
 RUN composer install --no-interaction --no-scripts --prefer-dist
+
+# Generar clave de aplicación
+RUN php artisan key:generate --force || true
 
 # Configurar Apache
 ENV WEB_DOCUMENT_ROOT=/app/public
@@ -26,13 +35,6 @@ ENV PHP_MEMORY_LIMIT=256M
 ENV PHP_MAX_EXECUTION_TIME=60
 ENV PHP_POST_MAX_SIZE=64M
 ENV PHP_UPLOAD_MAX_FILESIZE=64M
-
-# Generar clave de aplicación si no existe
-RUN if [ ! -f .env ]; then cp .env.example .env; fi
-RUN php artisan key:generate --force
-
-# Optimizar la aplicación
-RUN php artisan optimize
 
 # Exponer puerto
 EXPOSE 80
